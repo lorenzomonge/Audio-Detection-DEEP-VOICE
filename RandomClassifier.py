@@ -2,29 +2,48 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
+from sklearn.utils import shuffle
+import shap# to explain the model
 import joblib
+import matplotlib.pyplot 
 
-# Caricare il dataset CSV
+
 data = pd.read_csv('extracted_features.csv')
+data = shuffle(data)
 
-# Sostituire le label 'fake' con 1 e 'real' con 0
-data['LABEL'] = data['LABEL'].replace({'FAKE': 1, 'REAL': 0})
 
-# Separare le features dai target
-X = data.iloc[:,:-1] 
-y = data.iloc[:,-1] 
+# replace "FAKE" with 0 and "REAL" with 1
+data["LABEL"] = data["LABEL"].replace("FAKE", 0)
+data["LABEL"] = data["LABEL"].replace("REAL", 1)
 
-# Divido il dataset in training e testing
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
 
-# Creo e alleno il modello Random Forest Classifier
+
+# get all columns except "LABEL" (gender)
+features = data.keys()
+features = features.drop("LABEL") # remove label
+
+# Separating features and target
+X = data.loc[:, features].values
+y = data.loc[:, ['LABEL']].values.ravel()  
+
+# Splitting the dataset
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.34, random_state=42, shuffle=True)
+
+# create and train the model
 model = RandomForestClassifier(n_estimators=100, random_state=42)
 model.fit(X_train, y_train)
 
-# Valuto il modello sul dataset di testing
+# evaluate the model
 y_pred = model.predict(X_test)
 accuracy = accuracy_score(y_test, y_pred)
-print("Accuratezza:", accuracy)
+#print("predict:", y_pred)
+print("Accuracy:", accuracy)
 
-# Salvo il modello
+
+# save the model
 joblib.dump(model, 'deepfake_classifier.joblib')
+
+#create an explainer with bar plot
+explainer = shap.TreeExplainer(model)
+shap_values = explainer.shap_values(X_train)
+shap.summary_plot(shap_values, X_train, plot_type="bar")
