@@ -47,3 +47,5 @@ joblib.dump(model, 'deepfake_classifier.joblib')
 explainer = shap.TreeExplainer(model)
 shap_values = explainer.shap_values(X_train)
 shap.summary_plot(shap_values, X_train, plot_type="bar")
+matplotlib.pyplot.show()
+
