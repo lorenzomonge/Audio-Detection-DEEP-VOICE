@@ -12,7 +12,8 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 # Legge il file CSV
-data = pd.read_csv('extracted_features.csv')
+file_path = input("Enter the file path (only csv): ")
+data = pd.read_csv(file_path)
 
 # Rimpiazza "FAKE" con 0 e "REAL" con 1
 data["LABEL"] = data["LABEL"].replace("FAKE", 0)
@@ -39,7 +40,7 @@ accuracy = accuracy_score(y_test, y_pred)
 print("Accuracy:", accuracy)
 
 # Salva il modello
-#joblib.dump(model, 'deepfake_classifier.joblib')
+joblib.dump(model, 'deepfake_classifier.joblib')
 
 # importanze delle caratteristiche
 importances = model.feature_importances_

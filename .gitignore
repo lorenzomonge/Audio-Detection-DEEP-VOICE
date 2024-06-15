@@ -1,0 +1,7 @@
+#ignoro la cartella venv
+venv/
+
+
+#ignoro la cartella pycache
+shared/__pycache__/
+
