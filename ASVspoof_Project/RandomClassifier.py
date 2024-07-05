@@ -7,10 +7,11 @@ import numpy as np
 import joblib
 import time
 from tqdm import tqdm
+import pandas as pd
 import matplotlib.pyplot as plt
 
 # Leggi il file CSV
-data = pd.read_csv('features_with_labels.csv')
+data = pd.read_csv(input("Enter the file path (only csv): "))
 
 # Rimpiazza "spoof" con 0 e "bonafide" con 1
 data["LABEL"] = data["LABEL"].replace("spoof", 0)
@@ -51,23 +52,59 @@ indices = np.argsort(importances)[::-1]
 # Ottieni i nomi delle caratteristiche
 feature_names = features[indices]
 
+'''
 # Crea un grafico delle importanze delle caratteristiche
 plt.figure(figsize=(10, 5))
 plt.title("Feature importances")
 plt.bar(range(X_train.shape[1]), importances[indices])
 plt.xticks(range(X_train.shape[1]), feature_names, rotation=90)
 plt.show()
+'''
 
-# Spiega il modello con SHAP
-start_time = time.time()
+
+print("model.classes_: ", model.classes_)
+feature_names = [
+    "duration", 
+    "spectrum", 
+    "mean_frequency", 
+    "peak_frequency", 
+    "frequencies_std", 
+    "amplitudes_cum_sum",
+    "mode_frequency", 
+    "median_frequency", 
+    "frequencies_q25", 
+    "frequencies_q75",
+    "iqr", 
+    "freqs_skewness", 
+    "freqs_kurtosis", 
+    "spectral_entropy", 
+    "spectral_flatness", 
+    "spectral_centroid", 
+    "spectral_bandwidth", 
+    "spectral_spread", 
+    "pectral_rolloff", 
+    "energy",
+    "rms", 
+    "zcr", 
+    "spectral_mean", 
+    "spectral_rms", 
+    "spectral_std", 
+    "meanfun", 
+    "minfun", 
+    "maxfun", 
+    "meandom", 
+    "mindom", 
+    "maxdom", 
+    "dfrange", 
+    "modindex"
+
+]
+
+
 shap_values = shap.TreeExplainer(model).shap_values(X_train)
 
-# Display progress bar
-with tqdm(total=100, desc="Calculating SHAP values") as pbar:
-    while time.time() - start_time < 10:  # Set the desired duration for the progress bar
-        pbar.update(10)  # Update the progress bar every 10 seconds
+shap.summary_plot(shap_values, X_train, feature_names=feature_names, plot_type="bar", class_names = ["spoof", "bonafide"])
 
-shap.summary_plot(shap_values, X_train, feature_names=feature_names, plot_type='bar')
 
 # matrice di confusione
 conf_matrix = confusion_matrix(y_test, y_pred)
