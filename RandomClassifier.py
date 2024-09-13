@@ -17,8 +17,8 @@ file_path = input("Enter the file path (only csv): ")
 data = pd.read_csv(file_path)
 
 # Rimpiazza "FAKE" con 0 e "REAL" con 1
-data["LABEL"] = data["LABEL"].replace("FAKE", 0)
-data["LABEL"] = data["LABEL"].replace("REAL", 1)
+data["LABEL"] = data["LABEL"].replace("spoof", 0)
+data["LABEL"] = data["LABEL"].replace("bonafide", 1)
 
 #tutte le colonne tranne la colonna "LABEL"
 features = data.columns.drop("LABEL")
@@ -37,50 +37,74 @@ model.fit(X_train, y_train)
 
 print("model.classes_: ", model.classes_)
 feature_names = [
-    "duration", 
-    "spectrum", 
-    "mean_frequency", 
-    "peak_frequency", 
-    "frequencies_std", 
-    "amplitudes_cum_sum",
-    "mode_frequency", 
-    "median_frequency", 
-    "frequencies_q25", 
-    "frequencies_q75",
-    "iqr", 
-    "freqs_skewness", 
-    "freqs_kurtosis", 
-    "spectral_entropy", 
-    "spectral_flatness", 
-    "spectral_centroid", 
-    "spectral_bandwidth", 
-    "spectral_spread", 
-    "pectral_rolloff", 
-    "energy",
-    "rms", 
-    "zcr", 
-    "spectral_mean", 
-    "spectral_rms", 
-    "spectral_std", 
-    "meanfun", 
-    "minfun", 
-    "maxfun", 
-    "meandom", 
-    "mindom", 
-    "maxdom", 
-    "dfrange", 
-    "modindex"
+    "DURATION", 
+"SPECTRUM", 
+"MEAN_FREQUENCY", 
+"PEAK_FREQUENCY", 
+"FREQUENCIES_STD", 
+"AMPLITUDES_CUM_SUM",
+"MODE_FREQUENCY", 
+"MEDIAN_FREQUENCY", 
+"FREQUENCIES_Q25", 
+"FREQUENCIES_Q75",
+"IQR", 
+"FREQS_SKEWNESS", 
+"FREQS_KURTOSIS", 
+"SPECTRAL_ENTROPY", 
+"SPECTRAL_FLATNESS", 
+"SPECTRAL_CENTROID", 
+"SPECTRAL_BANDWIDTH", 
+"SPECTRAL_SPREAD", 
+"SPECTRAL_ROLLOFF", 
+"ENERGY",
+"RMS", 
+"ZCR", 
+"SPECTRAL_MEAN", 
+"SPECTRAL_RMS", 
+"SPECTRAL_STD", 
+"MEANFUN", 
+"MINFUN", 
+"MAXFUN", 
+"MEANDOM", 
+"MINDOM", 
+"MAXDOM", 
+"DFRANGE", 
+"MODINDEX"
 
 ]
 
 
+
+SMALL_SIZE = 8
+MEDIUM_SIZE = 10
+BIGGER_SIZE = 12
+
+plt.rc('font', size=BIGGER_SIZE)          # controls default text sizes
+plt.rc('axes', titlesize=SMALL_SIZE)     # fontsize of the axes title
+plt.rc('axes', labelsize=MEDIUM_SIZE)    # fontsize of the x and y labels
+plt.rc('xtick', labelsize=MEDIUM_SIZE)    # fontsize of the tick labels
+plt.rc('ytick', labelsize=MEDIUM_SIZE)    # fontsize of the tick labels
+plt.rc('legend', fontsize=MEDIUM_SIZE)    # legend fontsize
+plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
+
+
+
+
 shap_values = shap.TreeExplainer(model).shap_values(X_train)
 
-shap.summary_plot(shap_values,
+shap_figure=shap.summary_plot(shap_values,
                   X_train,
                   feature_names=np.array(feature_names),
                   plot_type="bar",
-                  class_names=["FAKE", "REAL"])
+                  class_names=["FAKE", "REAL"],
+                  show=False)
+
+plt.yticks(fontsize=40,color='black',fontproperties="Helvetica",weight='bold')
+plt.xticks(fontsize=40,color='black',fontproperties="Helvetica",weight='bold')
+plt.xlabel('SHAP value(impact on model output)',fontsize=24,fontproperties="Helvetica")
+plt.savefig("shap_summary.svg",format='svg', dpi=700)
+plt.show()
+
 
 # Valutazione del modello
 y_pred = model.predict(X_test)

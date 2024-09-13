@@ -103,7 +103,11 @@ feature_names = [
 
 shap_values = shap.TreeExplainer(model).shap_values(X_train)
 
-shap.summary_plot(shap_values, X_train, feature_names=feature_names, plot_type="bar", class_names = ["spoof", "bonafide"])
+shap.summary_plot(shap_values,
+                  X_train,
+                  feature_names=np.array(feature_names),
+                  plot_type="bar",
+                  class_names=["spoof", "bonafide"])
 
 
 # matrice di confusione
